@@ -45,5 +45,3 @@ LC_ALL=C	# sort is now bitwise L-R
 LC_ALL=	# restore default locale
 And no, 'phthalate' is not in wordlist as installed.
 I will add a program `addword word` to save all of this effort.
-
-
