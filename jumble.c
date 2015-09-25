@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include "firstrun.h"
 // Globals
 #define F_OPN_FAIL	1
 #define MEM_FAIL	2
@@ -32,10 +33,15 @@ int main (int argc, char** argv) {
 	    printf ("\n\tRequires one string of characters to be input\n\n");
 	    return 1;
     }
+    // Check for firstrun
+    if (checkfirstrun("jumble")) {
+		firstrun("jumble", "wordlist");
+	}
+
     // grab the first line from the dictionary
     /*@-onlytrans */
-    fp = safeopen("/usr/local/etc/mydict", "r", "mydict");
-    (void)fgets(dictbuf,39, fp);
+    fp = safeopen("wordlist", "r", "wordlist");
+    (void)fgets(dictbuf,NAME_MAX, fp);
     stripnl(dictbuf);
     /*@-unrecog */
     chp1 = strdup("");
