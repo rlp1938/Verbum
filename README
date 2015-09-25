@@ -1,0 +1,49 @@
+README for verbum (jumble, xword)
+
+If you have the skill to play word games then do so, but if not, cheat!
+
+Jumble is about unscrambling words that have their letters shuffled out
+of order. There has been a comic strip called Jumble in various
+Australian newspapers over the years, most recently MX in Melbourne,
+recently defunct. The strip originated in USA and so uses Webster
+dictionary spelling.
+
+On the other hand the available cross word puzzles in the Australian
+press are based on Oxford/Maquarie dictionary spelling.
+xword is intended to assist with solving said crosswords.
+Example `xword .b....ly` yields:
+abjectly
+abruptly
+absently
+absurdly
+obtusely
+
+Supporting both jumble and xword is a dictionary called wordlist. This
+list is actually a merge of American and British English, all in
+lowercase only. Thus we have:
+color
+colour
+colorado
+but NOT colourado.
+
+Such dictionary is installed at /usr/local/share/jumble/wordlist
+following `sudo make install` and then subsequently at
+$HOME/.config/jumble/wordlist on first run of `jumble ...`
+NB `xword` requires wordlist to be in that location but has no firstrun
+capability. You must run `jumble something` before using xword.
+
+NB wordlist is sorted strictly L-R bitwise and jumble will fail if you
+sort this file in any of the usual default locales which normally
+generate output in some kind of library order. xword is not so fussy.
+
+If you want to add 'phthalate' to the dictionary you could:
+`echo phthalate >> $HOME/.config/jumble/wordlist`
+but before you sort:
+LC_ALL=C	# sort is now bitwise L-R
+`sort -u $HOME/.config/jumble/wordlist > tmpfil` # the word there now?
+`mv tmpfil $HOME/.config/jumble/wordlist`
+LC_ALL=	# restore default locale
+And no, 'phthalate' is not in wordlist as installed.
+I will add a program `addword word` to save all of this effort.
+
+

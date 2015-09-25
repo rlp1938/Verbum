@@ -13,7 +13,7 @@
 #define MEM_FAIL	2
 
 static FILE *fp;
-static char dictbuf[40];
+static char dictbuf[NAME_MAX];
 
 // functions
 
@@ -22,7 +22,7 @@ static void permutes(char* left, char* right);
 static char *makelower(const char *input);
 static int foundit(const char *test);
 static void stripnl(char *line);
-static FILE *safeopen(char *path, char *mode, char *wherewhat);
+static FILE *safeopen(char *path, char *mode);
 static void *safemalloc(size_t num_bytes, char *wherewhat);
 static char *safestrdup(const char *todup, char *wherewhat);
 static void fatalerror(int failure, char *wherewhat);
@@ -39,11 +39,12 @@ int main (int argc, char** argv) {
 	}
 
     // grab the first line from the dictionary
-    /*@-onlytrans */
-    fp = safeopen("wordlist", "r", "wordlist");
-    (void)fgets(dictbuf,NAME_MAX, fp);
+    char buf[NAME_MAX];
+    sprintf(buf, "%s/.config/jumble/wordlist", getenv("HOME"));
+    fp = safeopen(buf, "r");
+    char *cp = fgets(dictbuf,NAME_MAX, fp);
+    cp--;	// stop gcc bitching
     stripnl(dictbuf);
-    /*@-unrecog */
     chp1 = strdup("");
     chp2 = makelower(argv[1]);
     chp3 = sortinput(chp2);
@@ -51,7 +52,7 @@ int main (int argc, char** argv) {
     free(chp3);
     free(chp2);
     free(chp1);
-    (void)fclose(fp);
+    fclose(fp);
     return 0;
 } // main()
 char* sortinput(const char*inp){
@@ -144,7 +145,7 @@ void stripnl(char *line){
 	/*@-temptrans*/
 	return;
 }// stripnl()
-FILE *safeopen(char *path, char *mode, /*@unused@*/char *wherewhat){
+FILE *safeopen(char *path, char *mode){
 	FILE *sofp;
 	sofp = fopen(path, mode);
 	if (!(sofp)) fatalerror(F_OPN_FAIL, path);

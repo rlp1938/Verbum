@@ -7,19 +7,33 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <unistd.h>
+#include <getopt.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <string.h>
+#include <libgen.h>
+#include <limits.h>
+// Globals
+#define F_OPN_FAIL	1
+#define MEM_FAIL	2
 
-int compare(const char *buf, const char *totest);
+static FILE *safeopen(char *path, char *mode);
+static int compare(const char *buf, const char *totest);
+static void fatalerror(int failure, char *wherewhat);
 
 int main (int argc, char** argv) {
     FILE *fp;
-    char buf[40];
-    int i, ch, li;
+    int i, ch;
     if (argc != 2) {
 	    printf ("\n\tRequires one string of characters to be input\n\n");
 	    return 1;
     }
-    fp = fopen("/usr/local/etc/mydict","r");
-    li=strlen(argv[1]);
+    char buf[NAME_MAX];
+    sprintf(buf, "%s/.config/jumble/wordlist", getenv("HOME"));
+    fp = safeopen(buf, "r");
+
     ch = fgetc(fp);
     i = 0;
     while(!feof(fp)) {
@@ -41,7 +55,8 @@ int main (int argc, char** argv) {
     return 0;
 } // main()
 int compare(const char *buf, const char *totest) {
-	int i,l,ch;
+	int ch;
+	size_t l, i;
 	l = strlen(totest);
 	if (l != strlen(buf))
 		return 0;
@@ -54,3 +69,28 @@ int compare(const char *buf, const char *totest) {
 	}
 	return 1;
 }// compare(...
+FILE *safeopen(char *path, char *mode){
+	FILE *sofp;
+	sofp = fopen(path, mode);
+	if (!(sofp)) fatalerror(F_OPN_FAIL, path);
+	/*@-nullret -dependenttrans*/
+	return sofp;
+}// safeopen()
+void  fatalerror(int failure, char *wherewhat){
+	int exitcode;
+	switch(failure) {
+		case MEM_FAIL:
+			exitcode = 3;
+			(void)puts("Could not get required memory");
+			break;
+		case F_OPN_FAIL:
+			exitcode = 2;
+			(void)puts("Failed to open file");
+			break;
+		default:
+			exitcode = -127; // should never happen
+			break;
+	}
+	perror(wherewhat);
+	exit(exitcode);
+}// fatalerror()
