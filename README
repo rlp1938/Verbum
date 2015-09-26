@@ -40,7 +40,7 @@ If you want to add 'phthalate' to the dictionary you could:
 `echo phthalate >> $HOME/.config/jumble/wordlist`
 but before you sort:
 LC_ALL=C	# sort is now bitwise L-R
-`sort -u $HOME/.config/jumble/wordlist > tmpfil` # the word there now?
+`sort -u $HOME/.config/jumble/wordlist > tmpfil` # word already there?
 `mv tmpfil $HOME/.config/jumble/wordlist`
 LC_ALL=	# restore default locale
 And no, 'phthalate' is not in wordlist as installed.
@@ -50,5 +50,5 @@ NB I have imposed no arbitrary limit on the size of the word you input
 to `jumble` but on my machine a 12 letter dictionary word took just over
 4 minutes to return so I'd consider that a practical limit. When I first
 wrote jumble the limit was iirc 9 letters, maybe 10. The program, apart
-from adding firstrun capability and tweaking to stop GCC fretting is
-original.
+from adding firstrun capability and tweaking to stop GCC fretting is as
+it was when first written.
