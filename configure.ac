@@ -4,7 +4,7 @@
 AC_PREREQ([2.69])
 AC_INIT([jumble], [1.1], [rlp1938@gmail.com])
 AM_INIT_AUTOMAKE
-AC_CONFIG_SRCDIR([dictfix.c])
+AC_CONFIG_SRCDIR([jumble.c])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
