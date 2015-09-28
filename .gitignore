@@ -1,10 +1,10 @@
-/aclocal.m4
 /autom4te.cache/
 /autoscan.log
-/compile
-/config.*
+/config.h
+/config.h.in~
+/config.log
+/config.status
 /configure.scan
-/depcomp
 /.deps/
 /jumble
 /jumble.plist/
@@ -12,8 +12,9 @@
 /xword
 /xword.plist/
 /xword.t2t
+/addword
+/addword.plist/
+/addword.t2t
 /Makefile
-/missing
 /stamp-h1
 /test*
-/authors.other
