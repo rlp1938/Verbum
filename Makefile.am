@@ -2,12 +2,14 @@
 
 AM_CFLAGS=-Wall -Wextra -D_GNU_SOURCE=1
 
-bin_PROGRAMS=jumble xword
+bin_PROGRAMS=jumble xword addword
 jumble_SOURCES=jumble.c fileops.c fileops.h firstrun.c firstrun.h
 
 xword_SOURCES=xword.c
 
-man_MANS=jumble.1 xword.1
+addword_SOURCES=xword.c fileops.c fileops.h
+
+man_MANS=jumble.1 xword.1 addword.1
 jumdir=$(datadir)/jumble
 jum_DATA=wordlist
-EXTRA_BUILD=jumble.1 wordlist xword.1
+EXTRA_BUILD=jumble.1 wordlist xword.1 addword.1

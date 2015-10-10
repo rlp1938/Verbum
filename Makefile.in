@@ -79,7 +79,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = jumble$(EXEEXT) xword$(EXEEXT)
+bin_PROGRAMS = jumble$(EXEEXT) xword$(EXEEXT) addword$(EXEEXT)
 subdir = .
 DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
 	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -99,6 +99,9 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" \
 	"$(DESTDIR)$(jumdir)"
 PROGRAMS = $(bin_PROGRAMS)
+am_addword_OBJECTS = xword.$(OBJEXT) fileops.$(OBJEXT)
+addword_OBJECTS = $(am_addword_OBJECTS)
+addword_LDADD = $(LDADD)
 am_jumble_OBJECTS = jumble.$(OBJEXT) fileops.$(OBJEXT) \
 	firstrun.$(OBJEXT)
 jumble_OBJECTS = $(am_jumble_OBJECTS)
@@ -134,8 +137,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(jumble_SOURCES) $(xword_SOURCES)
-DIST_SOURCES = $(jumble_SOURCES) $(xword_SOURCES)
+SOURCES = $(addword_SOURCES) $(jumble_SOURCES) $(xword_SOURCES)
+DIST_SOURCES = $(addword_SOURCES) $(jumble_SOURCES) $(xword_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -301,10 +304,11 @@ top_srcdir = @top_srcdir@
 AM_CFLAGS = -Wall -Wextra -D_GNU_SOURCE=1
 jumble_SOURCES = jumble.c fileops.c fileops.h firstrun.c firstrun.h
 xword_SOURCES = xword.c
-man_MANS = jumble.1 xword.1
+addword_SOURCES = xword.c fileops.c fileops.h
+man_MANS = jumble.1 xword.1 addword.1
 jumdir = $(datadir)/jumble
 jum_DATA = wordlist
-EXTRA_BUILD = jumble.1 wordlist xword.1
+EXTRA_BUILD = jumble.1 wordlist xword.1 addword.1
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -401,6 +405,10 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+
+addword$(EXEEXT): $(addword_OBJECTS) $(addword_DEPENDENCIES) $(EXTRA_addword_DEPENDENCIES) 
+	@rm -f addword$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(addword_OBJECTS) $(addword_LDADD) $(LIBS)
 
 jumble$(EXEEXT): $(jumble_OBJECTS) $(jumble_DEPENDENCIES) $(EXTRA_jumble_DEPENDENCIES) 
 	@rm -f jumble$(EXEEXT)
