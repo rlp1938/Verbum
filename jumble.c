@@ -42,7 +42,7 @@ int main (int argc, char** argv) {
     char buf[NAME_MAX];
     sprintf(buf, "%s/.config/jumble/wordlist", getenv("HOME"));
     fp = safeopen(buf, "r");
-    char *cp = fgets(dictbuf,NAME_MAX, fp);
+    char *cp = fgets(dictbuf, NAME_MAX, fp);
     cp--;	// stop gcc bitching
     stripnl(dictbuf);
     chp1 = strdup("");
@@ -128,10 +128,12 @@ int foundit(const char *test){
 	check=strcmp(dictbuf,test);
 	if (check == 0) return 1;
 	for (;;) {
+		char *res;
 		if (feof(fp)) return 0;
 		if (check == 0) return 1;
 		if (check > 0 ) return 0;
-		(void)fgets(dictbuf, 39, fp);
+		res = fgets(dictbuf, NAME_MAX, fp);
+		res++;	// stop gcc bitching.
 		stripnl(dictbuf);
 		check=strcmp(dictbuf,test);
 	}// while
