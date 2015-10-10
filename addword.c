@@ -15,48 +15,84 @@
 #include <string.h>
 #include <libgen.h>
 #include <limits.h>
-// Globals
-#define F_OPN_FAIL	1
-#define MEM_FAIL	2
+#include "fileops.h"
 
-static FILE *safeopen(char *path, char *mode);
-static void fatalerror(int failure, char *wherewhat);
+static void die(const char *inform);
 
 int main (int argc, char** argv) {
-    FILE *fp;
-    int i, ch;
     if (argc != 2) {
-	    printf ("\n\tRequires one string of characters to be input\n\n");
-	    return 1;
+	    die("\n\tRequires one string of characters to be input\n");
     }
-    char buf[NAME_MAX];
-    sprintf(buf, "%s/.config/jumble/wordlist", getenv("HOME"));
-    fp = safeopen(buf, "r");
 
+    char *toadd = strdup(argv[1]);
+    char *wordlist;
+    {
+		char buf[NAME_MAX];
+		sprintf(buf, "%s/.config/jumble/wordlist", getenv("HOME"));
+		wordlist = strdup(buf);
+	}
+	fdata dat = readfile(wordlist, 0, 1);
+	char *eol, *prveol, *line;
+	size_t len = strlen(toadd);
+	line = dat.from;
+	prveol = NULL;
+	/* I have to consider 3 conditions:
+	 * 1. toadd < first line in the file,
+	 * 2. toadd > last line in the file, and the usual,
+	 * 3. toadd is be inserted someplace else. */
+	while (line < dat.to) {
+		eol = memchr(line, '\n', dat.to - line);
+		int cmpres = strncmp(line, toadd, len);
+		if (cmpres == 0) {	// error, the word exists
+			die("The word to add exists.");
+		} else if (cmpres > 0) {
+			break;	// this is the insertion point
+		}
+		prveol = eol;
+		line = eol + 1;
+	}
+	// set up my workfile
+	char *tfname;
+	{
+		char fbuf[NAME_MAX];
+		sprintf(fbuf, "%s%s%d", "addword", getenv("USER"), getpid());
+		tfname = strdup(fbuf);
+	}
+	// format my word to add with '\n'
+	char addword[NAME_MAX];
+	sprintf(addword, "%s\n", toadd);
+	free(toadd);
+	len++;	// now longer by 1.
+	// so why did I exit?
+	if (line < dat.to) {
+		if (prveol) {	// usual condition, inserting within the file
+			writefile(tfname, dat.from, prveol+1, "w");
+			writefile(tfname, addword, addword + len, "a");
+			writefile(tfname, prveol+1, dat.to, "a");
+		} else {	// insert at new first line in file
+			writefile(tfname, addword, addword + len, "w");
+			writefile(tfname, dat.from, dat.to, "a");
+		}
+	} else { // the insertion point was never found
+		writefile(tfname, dat.from, dat.to, "w");
+		writefile(tfname, addword, addword + len, "a");
+	}
+
+	if (rename(tfname, wordlist) == -1) {
+		die("rename");
+	}
+
+	free(wordlist);
+	free(dat.from);
+	free(tfname);
     return 0;
 } // main()
-FILE *safeopen(char *path, char *mode){
-	FILE *sofp;
-	sofp = fopen(path, mode);
-	if (!(sofp)) fatalerror(F_OPN_FAIL, path);
-	/*@-nullret -dependenttrans*/
-	return sofp;
-}// safeopen()
-void  fatalerror(int failure, char *wherewhat){
-	int exitcode;
-	switch(failure) {
-		case MEM_FAIL:
-			exitcode = 3;
-			(void)puts("Could not get required memory");
-			break;
-		case F_OPN_FAIL:
-			exitcode = 2;
-			(void)puts("Failed to open file");
-			break;
-		default:
-			exitcode = -127; // should never happen
-			break;
+static void die(const char *inform)
+{
+	if (errno) {
+		perror(inform);
+	} else {
+		fprintf(stderr, "%s\n", inform);
 	}
-	perror(wherewhat);
-	exit(exitcode);
-}// fatalerror()
+	exit(EXIT_FAILURE);
+} // die()
